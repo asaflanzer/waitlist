@@ -1,4 +1,5 @@
 {
+  "homepage": "https://asaflanzer.github.io/waitlist",
   "name": "graphql-react-event-booking",
   "version": "1.0.0",
   "description": "",
@@ -26,6 +27,5 @@
   "proxy": "http://localhost:5000",
   "devDependencies": {
     "gh-pages": "^3.1.0"
-  },
-  "homepage": "https://github.com/asaflanzer/waitlist",
+  }
 }
