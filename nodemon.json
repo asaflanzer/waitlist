@@ -1,0 +1,7 @@
+{
+    "env": {
+        "MONGO_USER": "asaflanzer",
+        "MONGO_PASSWORD": "DZrleo6bhkgmkwcD",
+        "MONGO_DB": "waitlist"
+    }
+}
