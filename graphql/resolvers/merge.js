@@ -13,6 +13,14 @@ const userLoader = new DataLoader((userIds) => {
   return User.find({ _id: { $in: userIds } });
 });
 
+const totalLength = async () => {
+  try {
+    const totalQ = await User.countDocuments();
+    return totalQ;
+  } catch (err) {
+    throw err;
+  }
+};
 const waitingLength = async () => {
   try {
     const queueLength = await User.countDocuments({
@@ -109,6 +117,7 @@ const transformBooking = (booking) => {
 exports.transformEvent = transformEvent;
 exports.transformBooking = transformBooking;
 
+exports.totalLength = totalLength;
 exports.waitingLength = waitingLength;
 exports.nextInQueue = nextInQueue;
 exports.lastCalled = lastCalled;

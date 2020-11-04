@@ -51,13 +51,13 @@ const StatusPage = () => {
     if (cookies.get('token') === undefined) {
       history.push('/');
     }
+    fetchSingleUser();
+    fetchStatus();
     login(
       cookies.get('token').token,
       cookies.get('token').userId,
       cookies.get('token').tokenExpiration
     );
-    fetchSingleUser();
-    fetchStatus();
     return () => {
       setLoading(false);
     };
@@ -97,9 +97,11 @@ const StatusPage = () => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData.data.getStatus);
-        setStatus(resData.data.getStatus);
-        setLoading(false);
+        if (loading) {
+          console.log(resData.data.getStatus);
+          setStatus(resData.data.getStatus);
+          setLoading(false);
+        }
       })
       .catch((err) => {
         console.log('err:', err);
@@ -108,7 +110,6 @@ const StatusPage = () => {
   };
 
   const fetchSingleUser = () => {
-    // setLoading(true);
     const requestBody = {
       query: `
           query SingleUser($userId: String!) {
@@ -144,9 +145,8 @@ const StatusPage = () => {
         }
       })
       .catch((err) => {
-        if (loading) {
-          console.log('err:', err);
-        }
+        history.push('/');
+        console.log('err:', err);
       });
   };
 

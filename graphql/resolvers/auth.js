@@ -2,7 +2,12 @@ const DataLoader = require('dataloader');
 // models
 const User = require('../../models/user');
 // merge functions
-const { waitingLength, nextInQueue, lastCalled } = require('./merge');
+const {
+  totalLength,
+  waitingLength,
+  nextInQueue,
+  lastCalled,
+} = require('./merge');
 // bcrypt
 const bcrypt = require('bcryptjs');
 // jwt
@@ -76,14 +81,14 @@ module.exports = {
       //   });
       // });
 
-      const queueLength = await waitingLength();
+      const totalQ = await totalLength();
 
       const user = new User({
         name: name,
         email: email,
         phone: +phone,
         status: 'pending',
-        number: queueLength + 1,
+        number: totalQ + 1,
       });
 
       const result = await user.save();
