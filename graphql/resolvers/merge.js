@@ -25,7 +25,9 @@ const waitingLength = async () => {
 };
 const nextInQueue = async () => {
   try {
-    const nextInline = await User.findOne({ status: 'pending' }).sort({
+    const nextInline = await User.findOne({
+      $or: [{ status: 'pending' }, { status: 'notified' }],
+    }).sort({
       number: 1,
     });
     return nextInline;
