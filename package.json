@@ -15,7 +15,7 @@
     "deploy": "gh-pages -d build"
   },
   "engines": {
-    "node": "10.16.0"
+    "node": "12.x"
   },
   "author": "",
   "license": "ISC",
