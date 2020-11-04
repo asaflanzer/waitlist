@@ -10,8 +10,7 @@ import { Form, Input, Checkbox } from 'antd';
 import { Modal } from 'antd';
 // Cookies
 import Cookies from 'universal-cookie';
-// custom hooks
-import useQueue from '../hooks/useQueue';
+
 // import io from 'socket.io-client';
 
 // //SERVER DOMAIN
@@ -20,15 +19,15 @@ import useQueue from '../hooks/useQueue';
 // socket.on('message', (message) => {
 //   console.log(message);
 // });
+const cookies = new Cookies();
 
 const { Title } = Typography;
 
 const FormPage = () => {
+  const history = useHistory();
   const { user, login } = useContext(AuthContext);
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  //const { queueLength } = useQueue();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,9 +36,11 @@ const FormPage = () => {
   const [readDoc, setReadDoc] = useState(false);
   const [disabled, setDisabled] = useState(false); //TODO: fix disabled logic move to formik+yup
 
-  const history = useHistory();
-
-  const cookies = new Cookies();
+  useEffect(() => {
+    if (cookies.get('token')) {
+      history.push(`/status/${cookies.get('token').userId}`);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

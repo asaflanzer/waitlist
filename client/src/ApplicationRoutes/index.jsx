@@ -27,18 +27,19 @@ const cookies = new Cookies();
 const ApplicationRoutes = () => {
   const { user } = useContext(AuthContext);
 
-  const PrivateRoute = ({ component: Component, user }) => (
+  const PrivateRoute = ({ children, ...rest }) => (
     <Route
+      {...rest}
       render={(props) =>
         user.token ? (
-          <Component user={user} {...props} />
+          children
         ) : (
           <Redirect
             to={{
               pathname: '/',
-              //   state: {
-              //     from: 'root',
-              //   },
+              state: {
+                from: props.location,
+              },
             }}
           />
         )

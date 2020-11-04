@@ -6,9 +6,11 @@ type User {
     _id: ID!
     name: String!
     email: String!
+    password: String
     phone: String!
     status: String!
     number: String!
+    role: String!
     createdAt: String!
     updatedAt: String!
 }
@@ -28,6 +30,7 @@ type Status {
 input UserInput {
     name: String!
     email: String!
+    password: String
     phone: String!
 }
 
@@ -41,6 +44,7 @@ type RootQuery {
 
 type RootMutation {
     createUser(userInput: UserInput): AuthData!
+    deleteUser(userId: String!): User
 }
 schema {
     query: RootQuery
