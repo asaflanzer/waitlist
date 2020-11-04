@@ -53,7 +53,7 @@ mongoose
     { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }
   )
   .then(() => {
-    app.listen(5000);
+    app.listen(port);
 
     // io.on('connection', (socket) => {
     //   //socket.emit('new connection', 'hello world!');
