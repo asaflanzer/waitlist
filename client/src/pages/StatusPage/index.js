@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 // context
 import { AuthContext } from '../../context/auth-context';
-
+// helpers
+import userNumber from '../../helpers/userNumber';
 // import './styled.scss';
 // ant design
 import { Result, Typography, Spin } from 'antd';
@@ -12,8 +13,8 @@ import { UserOutlined } from '@ant-design/icons';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 // custom hooks
-import useQueue from '../hooks/useQueue';
-import useGetUser from '../hooks/useGetUser';
+import useStatus from '../../hooks/useStatus';
+import useCurrentUser from '../../hooks/useCurrentUser';
 // Cookies
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
@@ -28,17 +29,10 @@ const cookies = new Cookies();
 
 const StatusPage = () => {
   const userId = useParams(); // TO REMOVE if it takes it from the cookies
-  const { user, login } = useContext(AuthContext);
-  const { queueLength, lastServed } = useQueue();
-  const { userStatus } = useGetUser();
-  const [loading, setLoading] = useState(true);
-  const [singleUser, setSingleUser] = useState(null);
-  const [status, setStatus] = useState({
-    length: '',
-    next: '',
-    last: '',
-  });
   const history = useHistory();
+  const { login } = useContext(AuthContext);
+  const { loading, status } = useStatus();
+  const { singleUser } = useCurrentUser();
 
   // useEffect(() => {
   //   // increment count
@@ -55,93 +49,48 @@ const StatusPage = () => {
     if (cookies.get('token') === undefined) {
       history.push('/');
     }
+
     login(
       cookies.get('token').token,
       cookies.get('token').userId,
       cookies.get('token').tokenExpiration
     );
-    fetchSingleUser();
-    fetchStatus();
-    // return () => {
-    //   setLoading(false);
-    // };
   }, []);
 
-  const fetchStatus = () => {
-    setLoading(true);
+  //useEffect(() => {
+  // Once each user reachs number 10 in line, update status and send email via BE function
+  //if (queueLength === 10) {
+  //update user status to NOTIFIED
+  // db.collection('queue')
+  //   .doc(cookies.get('inQueue'))
+  //   .update({
+  //     status: 'notified',
+  //   })
+  //   .then(() => {
+  //     console.log('user is being notified');
+  //   });
+  //}
+  //}, [queueLength]);
+
+  const fetchDeleteUser = (userId) => {
     const requestBody = {
       query: `
-          query {
-              getStatus {
-                  queueLength
-                  nextInline {
-                    name
-                    number
-                  }
-                  lastServed {
-                    name
-                    number
-                  }
-              }
+        mutation DeleteUser($userId: String!) {
+          deleteUser(userId: $userId) {
+            _id
+            name
           }
-      `,
-    };
-
-    fetch('/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Failed');
         }
-        return res.json();
-      })
-      .then((resData) => {
-        console.log(resData.data.getStatus);
-        if (loading) {
-          setStatus({
-            length: resData.data.getStatus.queueLength,
-            next: resData.data.getStatus.nextInline.number,
-            last: resData.data.getStatus.lastServed.number,
-          });
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        // if (loading) {
-        //   console.log('err:', err);
-        //   setLoading(false);
-        // }
-      });
-  };
-
-  const fetchSingleUser = () => {
-    setLoading(true);
-    const requestBody = {
-      query: `
-          query SingleUser($userId: String!) {
-              singleUser(userId: $userId) {
-                  name
-                  number
-                  createdAt
-              }
-          }
       `,
       variables: {
-        userId: cookies.get('token').userId,
+        userId: userId,
       },
     };
 
     fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
@@ -150,44 +99,15 @@ const StatusPage = () => {
         return res.json();
       })
       .then((resData) => {
-        console.log(resData.data);
-        if (loading) {
-          setSingleUser(resData.data.singleUser);
-          setLoading(false);
-        }
+        console.log(resData);
+        cookies.remove('token');
+        //socket.emit('leave-queue', userStatus.id);
+        history.push(`/`);
       })
       .catch((err) => {
-        if (loading) {
-          console.log('err:', err);
-          setLoading(false);
-        }
+        console.log(err);
       });
   };
-
-  // useEffect(() => {
-  //   if (user.token !== '' || cookies.get('token') !== '') {
-  //     console.log(user);
-  //     setLoading(false);
-  //   }
-  //   return () => {
-  //     history.push('/');
-  //   };
-  // }, [user]);
-
-  useEffect(() => {
-    // Once each user reachs number 10 in line, update status and send email via BE function
-    if (queueLength === 10) {
-      //update user status to NOTIFIED
-      // db.collection('queue')
-      //   .doc(cookies.get('inQueue'))
-      //   .update({
-      //     status: 'notified',
-      //   })
-      //   .then(() => {
-      //     console.log('user is being notified');
-      //   });
-    }
-  }, [queueLength]);
 
   const handleModal = (e) => {
     e.preventDefault();
@@ -207,15 +127,7 @@ const StatusPage = () => {
       okType: 'danger',
       cancelText: 'חזור',
       onOk() {
-        // db.collection('queue')
-        //   .doc(userStatus.id)
-        //   .delete()
-        //   .then(() => {
-        //     cookies.remove('inQueue');
-        //     history.push('/');
-        //     console.log('User deleted successfully');
-        //   });
-        //socket.emit('leave-queue', userStatus.id);
+        fetchDeleteUser(cookies.get('token').userId);
       },
       onCancel() {
         return true;
@@ -223,17 +135,6 @@ const StatusPage = () => {
     });
   };
 
-  const userNumber = (number) => {
-    const pad = (n, width, z) => {
-      z = z || '0';
-      n = n + '';
-      return n.length >= width
-        ? n
-        : new Array(width - n.length + 1).join(z) + n;
-    };
-
-    return pad(number, 3);
-  };
   return (
     <div
       style={{
@@ -277,26 +178,48 @@ const StatusPage = () => {
                 singleUser.number
               )}`}</h2>
             )}
-            <Row gutter={16}>
-              <Col span={8}>
-                <Statistic
-                  title='זמן המתנה משוער'
-                  value={(status.length - status.next + 1) * 2}
-                  prefix={`'דק`}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic
-                  title='ממתינים לפניך'
-                  value={status.length - status.next + 1}
-                  prefix={<UserOutlined />}
-                />
-              </Col>
-              {status.last !== '' && (
+            <Row gutter={24}>
+              {singleUser.number - status.nextInline.number === 0 ? (
+                <>
+                  <Col span={8}>
+                    <Statistic
+                      title='זמן המתנה משוער'
+                      value={(singleUser.number - status.nextInline.number) * 2}
+                      prefix={`'דק`}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title='ממתינים לפניך'
+                      value='אין ממתינים'
+                      prefix={<UserOutlined />}
+                    />
+                  </Col>
+                </>
+              ) : (
+                <>
+                  <Col span={8}>
+                    <Statistic
+                      title='זמן המתנה משוער'
+                      value={(singleUser.number - status.nextInline.number) * 2}
+                      prefix={`'דק`}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title='ממתינים לפניך'
+                      value={singleUser.number - status.nextInline.number}
+                      prefix={<UserOutlined />}
+                    />
+                  </Col>
+                </>
+              )}
+
+              {status.lastServed !== null && (
                 <Col span={8}>
                   <Statistic
                     title='אחרונים שנכנסו'
-                    value={`${userNumber(status.last)}`}
+                    value={`${userNumber(status.lastServed.number)}`}
                     className='last-in'
                   />
                 </Col>

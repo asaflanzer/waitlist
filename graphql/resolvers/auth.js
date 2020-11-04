@@ -1,8 +1,14 @@
+const config = require('../../config.json');
 const DataLoader = require('dataloader');
 // models
 const User = require('../../models/user');
 // merge functions
-const { waitingLength, nextInQueue, lastCalled } = require('./merge');
+const {
+  totalLength,
+  waitingLength,
+  nextInQueue,
+  lastCalled,
+} = require('./merge');
 // bcrypt
 const bcrypt = require('bcryptjs');
 // jwt
@@ -57,14 +63,45 @@ module.exports = {
       throw err;
     }
   },
+  deleteUser: async ({ userId }, req) => {
+    try {
+      const user = await User.deleteOne({ _id: userId });
+      return { user };
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
   createUser: async ({ userInput }, req) => {
-    const { name, email, phone } = userInput;
+    const { name, email, password, phone } = userInput;
+    const totalQ = await totalLength();
+
     try {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         throw new Error('User exists already.');
       }
 
+      // if (password !== undefined) {
+      //   const hashedPassword = await bcrypt.hash(password, 12);
+
+      //   const user = new User({
+      //     name: name,
+      //     email: email,
+      //     password: hashedPassword,
+      //     phone: +phone,
+      //     status: 'pending',
+      //     number: totalQ + 1,
+      //   });
+      // }
+
+      const user = new User({
+        name: name,
+        email: email,
+        phone: +phone,
+        status: 'pending',
+        number: totalQ + 1,
+      });
       // const user = {};
       // io.on('connection', (socket) => {
       //   //socket.emit('new connection', 'hello world!');
@@ -76,16 +113,6 @@ module.exports = {
       //   });
       // });
 
-      const queueLength = await waitingLength();
-
-      const user = new User({
-        name: name,
-        email: email,
-        phone: +phone,
-        status: 'pending',
-        number: queueLength + 1,
-      });
-
       const result = await user.save();
 
       // User.watch().on('change', (change) => {
@@ -95,7 +122,7 @@ module.exports = {
 
       const token = jwt.sign(
         { userId: result._id, email: result.email },
-        'myprivatekeythatshouldbestorageontheserver',
+        config.secret,
         { expiresIn: '1h' }
       );
 
@@ -120,10 +147,16 @@ module.exports = {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      'myprivatekeythatshouldbestorageontheserver',
+      config.secret,
       { expiresIn: '1h' }
     );
 
-    return { userId: user.id, token: token, tokenExpiration: 12 };
+    const loggedUser = await User.findByIdAndUpdate(user.id, { token });
+
+    return loggedUser;
+    // return {
+    //   data: { userId: user.id, role: user.role },
+    //   token,
+    // };
   },
 };

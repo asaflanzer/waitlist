@@ -9,16 +9,16 @@ import { Statistic, Row, Col } from 'antd';
 import { Spin } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 // custom hooks
-import useQueue from '../hooks/useQueue';
-//import dayjs from 'dayjs';
-//const date = dayjs();
+import useStatus from '../../hooks/useStatus';
+import dayjs from 'dayjs';
+const date = dayjs();
 
 const { Title, Text } = Typography;
 
 const LandingPage = () => {
   const history = useHistory();
-  const { loading, queueLength } = useQueue();
-  const [disabled] = useState(false); // Change to true for PRODUCTION
+  const { loading, status } = useStatus();
+  const [disabled, setDisabled] = useState(false); // Change to true for PRODUCTION
 
   useEffect(() => {
     //   // //Enable queue till 15:30
@@ -75,7 +75,7 @@ const LandingPage = () => {
           </Timeline>
           <Row gutter={16}>
             <Col span={2} />
-            {queueLength === '' ? (
+            {loading ? (
               <Col span={20}>
                 <div className='loading'>
                   <Spin />
@@ -86,14 +86,14 @@ const LandingPage = () => {
                 <Col span={10}>
                   <Statistic
                     title='זמן המתנה משוער'
-                    value={`${queueLength * 2}`}
+                    value={`${status.queueLength * 2}`}
                     prefix={`'דק`}
                   />
                 </Col>
                 <Col span={10}>
                   <Statistic
                     title='ממתינים בתור'
-                    value={queueLength}
+                    value={status.queueLength}
                     prefix={<UserOutlined />}
                   />
                 </Col>
