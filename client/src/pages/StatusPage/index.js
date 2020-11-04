@@ -281,14 +281,14 @@ const StatusPage = () => {
               <Col span={8}>
                 <Statistic
                   title='זמן המתנה משוער'
-                  value={(status.length - status.next + 1) * 2}
+                  value={(singleUser.number - status.next - 1) * 2}
                   prefix={`'דק`}
                 />
               </Col>
               <Col span={8}>
                 <Statistic
                   title='ממתינים לפניך'
-                  value={status.length - status.next + 1}
+                  value={singleUser.number - status.next - 1}
                   prefix={<UserOutlined />}
                 />
               </Col>
