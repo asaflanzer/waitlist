@@ -15,7 +15,9 @@ const userLoader = new DataLoader((userIds) => {
 
 const waitingLength = async () => {
   try {
-    const queueLength = await User.countDocuments({ status: 'pending' });
+    const queueLength = await User.countDocuments({
+      $or: [{ status: 'pending' }, { status: 'notified' }],
+    });
     return queueLength;
   } catch (err) {
     throw err;

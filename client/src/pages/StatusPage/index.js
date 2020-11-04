@@ -33,11 +33,7 @@ const StatusPage = () => {
   const { userStatus } = useGetUser();
   const [loading, setLoading] = useState(true);
   const [singleUser, setSingleUser] = useState(null);
-  const [status, setStatus] = useState({
-    length: '',
-    next: '',
-    last: '',
-  });
+  const [status, setStatus] = useState(null);
   const history = useHistory();
 
   // useEffect(() => {
@@ -62,9 +58,9 @@ const StatusPage = () => {
     );
     fetchSingleUser();
     fetchStatus();
-    // return () => {
-    //   setLoading(false);
-    // };
+    return () => {
+      setLoading(false);
+    };
   }, []);
 
   const fetchStatus = () => {
@@ -102,25 +98,17 @@ const StatusPage = () => {
       })
       .then((resData) => {
         console.log(resData.data.getStatus);
-        if (loading) {
-          setStatus({
-            length: resData.data.getStatus.queueLength,
-            next: resData.data.getStatus.nextInline.number,
-            last: resData.data.getStatus.lastServed.number,
-          });
-          setLoading(false);
-        }
+        setStatus(resData.data.getStatus);
+        setLoading(false);
       })
       .catch((err) => {
-        // if (loading) {
-        //   console.log('err:', err);
-        //   setLoading(false);
-        // }
+        console.log('err:', err);
+        setLoading(false);
       });
   };
 
   const fetchSingleUser = () => {
-    setLoading(true);
+    // setLoading(true);
     const requestBody = {
       query: `
           query SingleUser($userId: String!) {
@@ -153,13 +141,11 @@ const StatusPage = () => {
         console.log(resData.data);
         if (loading) {
           setSingleUser(resData.data.singleUser);
-          setLoading(false);
         }
       })
       .catch((err) => {
         if (loading) {
           console.log('err:', err);
-          setLoading(false);
         }
       });
   };
@@ -277,26 +263,48 @@ const StatusPage = () => {
                 singleUser.number
               )}`}</h2>
             )}
-            <Row gutter={16}>
-              <Col span={8}>
-                <Statistic
-                  title='זמן המתנה משוער'
-                  value={(singleUser.number - status.next - 1) * 2}
-                  prefix={`'דק`}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic
-                  title='ממתינים לפניך'
-                  value={singleUser.number - status.next - 1}
-                  prefix={<UserOutlined />}
-                />
-              </Col>
-              {status.last !== '' && (
+            <Row gutter={24}>
+              {singleUser.number - status.nextInline.number === 0 ? (
+                <>
+                  <Col span={8}>
+                    <Statistic
+                      title='זמן המתנה משוער'
+                      value={(singleUser.number - status.nextInline.number) * 2}
+                      prefix={`'דק`}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title='ממתינים לפניך'
+                      value='אין ממתינים'
+                      prefix={<UserOutlined />}
+                    />
+                  </Col>
+                </>
+              ) : (
+                <>
+                  <Col span={8}>
+                    <Statistic
+                      title='זמן המתנה משוער'
+                      value={(singleUser.number - status.nextInline.number) * 2}
+                      prefix={`'דק`}
+                    />
+                  </Col>
+                  <Col span={8}>
+                    <Statistic
+                      title='ממתינים לפניך'
+                      value={singleUser.number - status.nextInline.number}
+                      prefix={<UserOutlined />}
+                    />
+                  </Col>
+                </>
+              )}
+
+              {status.lastServed !== null && (
                 <Col span={8}>
                   <Statistic
                     title='אחרונים שנכנסו'
-                    value={`${userNumber(status.last)}`}
+                    value={`${userNumber(status.lastServed.number)}`}
                     className='last-in'
                   />
                 </Col>
