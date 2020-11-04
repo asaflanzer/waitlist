@@ -58,7 +58,7 @@ const AuthPage = () => {
       };
     }
 
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: { 'Content-Type': 'application/json' },
@@ -86,7 +86,7 @@ const AuthPage = () => {
 
     // axios({
     //   method: 'POST',
-    //   url: 'http://localhost:5000/graphql',
+    //   url: '/graphql',
     //   data: JSON.stringify(requestBody),
     //   headers: { 'Content-Type': 'application/json' },
     // })

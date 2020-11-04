@@ -1,5 +1,10 @@
+const port = process.env.PORT || 5000;
 const express = require('express');
+const path = require('path');
+require('dotenv').config();
 const bodyParser = require('body-parser');
+// socket.io
+// const io = require('socket.io')(8000);
 const { graphqlHTTP } = require('express-graphql');
 const mongoose = require('mongoose');
 // schemas
@@ -8,9 +13,17 @@ const graphQlSchema = require('./graphql/schema');
 const graphQlResolvers = require('./graphql/resolvers');
 // middleware
 const isAuth = require('./middleware/is-auth');
+const { userJoined, getCurrentUser } = require('./middleware/users');
+
+const cors = require('cors');
 
 const app = express();
 
+// Resolve CORS
+app.use(cors());
+// Serve the static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
+// Parse body requests to JSON
 app.use(bodyParser.json());
 
 app.use((req, res, next) => {
@@ -41,6 +54,43 @@ mongoose
   )
   .then(() => {
     app.listen(5000);
+
+    // io.on('connection', (socket) => {
+    //   //socket.emit('new connection', 'hello world!');
+    //   // console.log(socket.id);
+
+    //   // Queue Room
+    //   socket.on('queue', (userId) => {
+    //     const user = graphQlResolvers.singleUser(userId);
+    //     console.log(user);
+
+    //     const userJoined = userJoined(userId, number, room);
+
+    //     // Join a rooom
+    //     socket.join(userJoined.room); // TODO reference room to the user status='pending' && 'notified'
+
+    //     // Broadcast everybody except the current user
+    //     socket.broadcast
+    //       .to(userJoined.room)
+    //       .emit('message', 'A user has joined the queue');
+    //   });
+
+    //   // When user joins the queue
+    //   socket.on('join-queue', (user) => {
+    //     console.log('server got: ', user);
+    //   });
+
+    //   // Listen for updates
+    //   // socket.on('call-next', (user) => {
+    //   // io.emit('message', 'A user was called');
+    //   // });
+
+    //   // When user leaves the queue
+    //   socket.on('leave-queue', () => {
+    //     // Broadcast to all clients
+    //     io.emit('message', 'A user has left the queue');
+    //   });
+    // });
   })
   .catch((err) => {
     console.log(err);

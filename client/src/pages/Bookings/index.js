@@ -43,7 +43,7 @@ const BookingsPage = () => {
           `,
     };
 
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -88,7 +88,7 @@ const BookingsPage = () => {
         id: eventId,
       },
     };
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -129,7 +129,7 @@ const BookingsPage = () => {
     };
 
     // TODO: convert to apollo client
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
