@@ -20,12 +20,11 @@ const cookies = new Cookies();
 // import io from 'socket.io-client';
 
 // //SERVER DOMAIN
-// const socket = io('http://localhost:5000/');
+// const socket = io('http://localhost:8000/');
 
-// // increment count
-// socket.on('increment-queue', () => {});
-// // decrement count
-// socket.on('decrement-queue', () => {});
+// socket.on('message', (message) => {
+//   console.log(message);
+// });
 
 const StatusPage = () => {
   const userId = useParams(); // TO REMOVE if it takes it from the cookies
@@ -40,6 +39,17 @@ const StatusPage = () => {
     last: '',
   });
   const history = useHistory();
+
+  // useEffect(() => {
+  //   // increment count
+  //   socket.on('increment-queue', () => {
+  //     setStatus((prev) => ({ ...prev, length: +1 }));
+  //   });
+  //   // decrement count
+  //   socket.on('decrement-queue', () => {
+  //     setStatus((prev) => ({ ...prev, length: -1 }));
+  //   });
+  // }, [status]);
 
   useEffect(() => {
     if (cookies.get('token') === undefined) {
@@ -77,7 +87,7 @@ const StatusPage = () => {
       `,
     };
 
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -126,7 +136,7 @@ const StatusPage = () => {
       },
     };
 
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: {
@@ -271,14 +281,14 @@ const StatusPage = () => {
               <Col span={8}>
                 <Statistic
                   title='זמן המתנה משוער'
-                  value={(status.length - 1) * 2}
+                  value={(status.length - status.next + 1) * 2}
                   prefix={`'דק`}
                 />
               </Col>
               <Col span={8}>
                 <Statistic
                   title='ממתינים לפניך'
-                  value={status.length - 1}
+                  value={status.length - status.next + 1}
                   prefix={<UserOutlined />}
                 />
               </Col>

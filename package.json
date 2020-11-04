@@ -1,31 +1,46 @@
 {
   "homepage": "https://asaflanzer.github.io/waitlist",
-  "name": "graphql-react-event-booking",
+  "name": "waitlist-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
+    "start": "node server.js",
+    "server": "nodemon server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install npm && run build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
+  },
+  "engines": {
+    "node": "10.16.0"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "dataloader": "^2.0.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-graphql": "^0.11.0",
     "graphql": "^15.3.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.8",
     "nodemon": "^2.0.4",
+    "path": "^0.12.7",
     "socket.io": "^2.3.0"
   },
-  "proxy": "http://localhost:5000",
   "devDependencies": {
-    "gh-pages": "^3.1.0"
-  }
+    "concurrently": "^5.3.0",
+    "typescript": "^4.0.5"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
 }

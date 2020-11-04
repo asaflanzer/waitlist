@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import TextError from './TextError';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 
-//SERVER DOMAIN
-const socket = io('http://localhost:5000/');
+// //SERVER DOMAIN
+// const socket = io('http://localhost:8000/');
 
-socket.on('new connection', (data) => {
-  console.log(data);
-});
+// socket.on('new connection', (data) => {
+//   console.log(data);
+// });
 
 const initialValues = {
   name: '',

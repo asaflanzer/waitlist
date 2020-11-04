@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 // jwt
 const jwt = require('jsonwebtoken');
 // socket.io
-// const io = require('socket.io')(5000);
+const io = require('socket.io');
 
 const userLoader = new DataLoader((userIds) => {
   return User.find({ _id: { $in: userIds } });
@@ -87,6 +87,11 @@ module.exports = {
       });
 
       const result = await user.save();
+
+      // User.watch().on('change', (change) => {
+      //   console.log('Something has changed');
+      //   io.to(change.fullDocument._id).emit('changes', change.fullDocument);
+      // });
 
       const token = jwt.sign(
         { userId: result._id, email: result.email },

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 // context
 import { AuthContext } from '../../context/auth-context';
@@ -15,7 +15,11 @@ import useQueue from '../hooks/useQueue';
 // import io from 'socket.io-client';
 
 // //SERVER DOMAIN
-// const socket = io('http://localhost:5000/');
+// const socket = io('http://localhost:8000/');
+
+// socket.on('message', (message) => {
+//   console.log(message);
+// });
 
 const { Title } = Typography;
 
@@ -24,7 +28,7 @@ const FormPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const { queueLength } = useQueue();
+  //const { queueLength } = useQueue();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -50,12 +54,6 @@ const FormPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    // socket.on('new connection', (data) => {
-    //   console.log(data);
-    // });
-
-    //socket.emit('new-user', formData);
-
     const requestBody = {
       query: `
           mutation CreateUser($name: String!, $email: String!, $phone: String!) {
@@ -73,7 +71,7 @@ const FormPage = () => {
       },
     };
 
-    fetch('http://localhost:5000/graphql', {
+    fetch('/graphql', {
       method: 'POST',
       body: JSON.stringify(requestBody),
       headers: { 'Content-Type': 'application/json' },
@@ -87,6 +85,9 @@ const FormPage = () => {
       .then((resData) => {
         console.log(resData.data);
         const { token, userId, tokenExpiration } = resData.data.createUser;
+
+        // socket.emit('join-queue', userId);
+        // socket.emit('queue', userId);
 
         if (token) {
           //SAVE TOKEN IN COOKIES
