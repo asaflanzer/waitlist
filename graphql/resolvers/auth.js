@@ -1,4 +1,8 @@
-const config = require('../../config.json');
+require('dotenv').config();
+// require('dotenv').config({
+//   path: `${__dirname}/.env`,
+// });
+
 const DataLoader = require('dataloader');
 // models
 const User = require('../../models/user');
@@ -122,7 +126,7 @@ module.exports = {
 
       const token = jwt.sign(
         { userId: result._id, email: result.email },
-        config.secret,
+        myprivatekeythatshouldbestorageontheserver,
         { expiresIn: '1h' }
       );
 
@@ -147,7 +151,7 @@ module.exports = {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      config.secret,
+      myprivatekeythatshouldbestorageontheserver,
       { expiresIn: '1h' }
     );
 
